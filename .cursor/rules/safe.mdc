@@ -1,0 +1,172 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---Add commentMore actions
+description: 
+globs: 
+alwaysApply: false
+---
+# NotionNext 安全修改指南
+
+## 🚨 绝对禁止修改的核心文件
+
+### 1. 数据源配置 - 最危险 ⭐⭐⭐⭐⭐
+- [blog.config.js](mdc:blog.config.js) - 第4-6行的 `NOTION_PAGE_ID` 配置
+- 任何包含 `NOTION_PAGE_ID` 的环境变量引用
+- **后果**: 修改错误将导致无法从 Notion 获取任何文章，整个站点失效
+
+### 2. 路由生成系统 - 最危险 ⭐⭐⭐⭐⭐
+- [pages/[prefix]/[slug]/index.js](mdc:pages/[prefix]/[slug]/index.js) - `getStaticPaths` 函数 (第17-44行)
+- [pages/[prefix]/[slug]/[...suffix].js](mdc:pages/[prefix]/[slug]/[...suffix].js) - 路由生成逻辑
+- 所有包含 `getStaticPaths` 和 `getStaticProps` 的文件
+- **后果**: 修改错误将导致所有文章返回 404，路由失效
+
+### 3. 数据获取核心 - 最危险 ⭐⭐⭐⭐⭐
+- [lib/db/getSiteData.js](mdc:lib/db/getSiteData.js) - `getGlobalData` 函数 (第22-50行)
+- [lib/notion/getPostBlocks.js](mdc:lib/notion/getPostBlocks.js) - 文章内容获取逻辑
+- [lib/cache/cache_manager.js](mdc:lib/cache/cache_manager.js) - 缓存管理核心
+- **后果**: 影响整个站点的数据获取和缓存机制
+
+## 🔥 高风险修改区域
+
+### 4. 主题系统核心 - 高危险 ⭐⭐⭐⭐
+- [themes/theme.js](mdc:themes/theme.js) - `useLayoutByTheme` 函数 (第77-99行)
+- `getThemeConfig` 和 `getBaseLayoutByTheme` 函数
+- **后果**: 页面布局崩溃，主题切换失效
+
+### 5. 配置管理系统 - 高危险 ⭐⭐⭐⭐
+- [lib/config.js](mdc:lib/config.js) - `siteConfig` 函数 (第12-70行)
+- 配置优先级读取逻辑
+- **后果**: 功能配置失效，站点行为异常
+
+### 6. Next.js 核心配置 - 高危险 ⭐⭐⭐⭐
+- [next.config.js](mdc:next.config.js) - 构建和主题扫描配置
+- [pages/_app.js](mdc:pages/_app.js) - 应用入口逻辑
+- **后果**: 构建失败，应用无法启动
+
+## ⚡ 中等风险修改区域
+
+### 7. 文章内容处理 - 中等危险 ⭐⭐⭐
+- [lib/notion/getPostBlocks.js](mdc:lib/notion/getPostBlocks.js) - `convertNotionBlocksToPost` 函数 (第74-155行)
+- 各种块类型的处理逻辑（代码块、文件、视频等）
+- **后果**: 特定内容类型无法正常渲染
+
+### 8. 工具函数 - 中等危险 ⭐⭐⭐
+- [lib/utils/post.js](mdc:lib/utils/post.js) - 文章数据处理工具
+- [lib/utils/pageId.js](mdc:lib/utils/pageId.js) - 页面ID处理
+- **注意**: 只修改样式相关部分，避免修改核心逻辑
+
+## ✅ 安全修改区域
+
+### 🎨 样式和视觉相关
+- [styles/globals.css](mdc:styles/globals.css) - 全局样式
+- [tailwind.config.js](mdc:tailwind.config.js) - Tailwind 配置
+- `public/css/` 目录下的所有 CSS 文件
+- `public/images/` 目录下的图片资源
+
+### 🧩 UI 组件样式
+- [components/](mdc:components) 目录下组件的样式部分
+- 各主题目录下的样式文件
+- 图标、按钮、布局组件的 CSS 类名和样式
+
+### ⚙️ 主题配置文件
+- `themes/*/config.js` 中的样式配置项
+- 颜色、字体、间距等视觉配置
+- 布局相关的非逻辑配置
+
+### 📁 静态资源
+- `public/js/` 目录下的自定义脚本
+- `public/svg/` 目录下的 SVG 图标
+- `public/webfonts/` 字体文件
+
+## 🛡️ 安全修改原则
+
+### ✅ 允许的修改类型
+1. **CSS 样式**: 颜色、字体、间距、边框等
+2. **静态资源**: 图片、图标、字体替换
+3. **文本内容**: 标题、描述、标签文本
+4. **配置值**: 非逻辑的配置项（如颜色值、尺寸）
+
+### ❌ 禁止的修改类型
+1. **函数逻辑**: `useState`、`useEffect`、API 调用逻辑
+2. **数据结构**: 对象的键名、数组的结构
+3. **路由配置**: 文件名、路径规则
+4. **环境变量**: 核心配置的环境变量引用
+
+## 🔧 安全修改工作流
+
+### 修改前准备
+```bash
+# 1. 创建备份分支
+git checkout -b backup-before-changes
+
+# 2. 提交当前状态
+git add .
+git commit -m "备份：开始修改前的状态"
+```
+
+### 修改过程
+1. **单步修改**: 每次只改一个地方
+2. **实时测试**: 每改完一处就测试
+3. **保存节点**: 重要修改后立即 commit
+
+### 测试验证
+```bash
+# 本地构建测试
+yarn build
+
+# 启动本地服务验证
+yarn start
+
+# 检查关键页面
+# - 首页是否正常
+# - 文章页面是否能打开
+# - 主题切换是否正常
+```
+
+### 问题恢复
+```bash
+# 回退单个文件
+git checkout HEAD~1 -- 文件名
+
+# 回退到上一个提交
+git reset --hard HEAD~1
+
+# 切换到备份分支
+git checkout backup-before-changes
+```
+
+## 🎯 常见修改场景指导
+
+### 替换图标
+- ✅ 替换 `public/images/` 中的图标文件
+- ✅ 修改组件中的图标 className
+- ❌ 不要修改图标加载逻辑
+
+### 调整颜色主题
+- ✅ 修改 `tailwind.config.js` 中的颜色配置
+- ✅ 修改主题 config.js 中的颜色值
+- ❌ 不要修改颜色使用的逻辑判断
+
+### 修改布局
+- ✅ 调整 CSS Grid/Flexbox 属性
+- ✅ 修改组件的 className 组合
+- ❌ 不要修改布局组件的 props 结构
+
+### 添加新功能
+- ✅ 创建新的纯展示组件
+- ✅ 添加新的静态页面
+- ❌ 不要修改现有的数据流逻辑
+
+## 🚨 紧急情况处理
+
+如果修改后出现以下情况，立即停止并恢复：
+- 构建失败 (`yarn build` 报错)
+- 页面白屏或 500 错误
+- 文章页面返回 404
+- 主题切换失效
+- 任何 JavaScript 控制台错误
+
+**记住**: 当不确定某个修改是否安全时，总是选择不修改，或寻求帮助！
