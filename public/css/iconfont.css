@@ -1,0 +1,26 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 4902131 */
+  src: url('https://at.alicdn.com/t/font_4902131_mf5n8tfonf.woff2?t=1680000000000') format('woff2'),
+       url('https://at.alicdn.com/t/font_4902131_mf5n8tfonf.woff?t=1680000000000') format('woff'),
+       url('https://at.alicdn.com/t/font_4902131_mf5n8tfonf.ttf?t=1680000000000') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 菜单图标 */
+.icon-caidan:before {
+  content: "\e601";
+}
+
+/* 博客图标 */
+.icon-blog:before {
+  content: "\e602";
+}
+
+/* 更多图标类名可以在这里添加 */ 
