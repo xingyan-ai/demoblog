@@ -1,0 +1,134 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# NotionNext 项目运行机制与架构指南
+
+## 🏗️ 核心架构
+
+这是一个基于 **Next.js 14.2.4** + **Notion API** 的静态博客系统，采用 SSG（静态站点生成）+ ISR（增量静态再生）的混合渲染策略。
+
+### 技术栈组成
+- **Next.js**: React 框架，负责 SSG/ISR 渲染
+- **Notion API**: 数据源（文章、配置、分类等）
+- **React-notion-x**: Notion 块内容渲染组件
+- **Tailwind CSS**: 样式框架
+- **多主题系统**: 动态主题切换机制
+
+## 📁 关键文件与目录结构
+
+### 配置文件
+- [blog.config.js](mdc:blog.config.js) - 主配置文件，定义站点基础配置
+- [lib/config.js](mdc:lib/config.js) - 动态配置管理，支持 Notion 表格配置覆盖
+- [next.config.js](mdc:next.config.js) - Next.js 构建配置
+
+### 数据获取层
+- [lib/db/getSiteData.js](mdc:lib/db/getSiteData.js) - 核心数据获取入口，负责从 Notion 获取所有站点数据
+- [lib/notion/](mdc:lib/notion) - Notion API 封装目录
+  - `getAllPosts.js` - 获取所有文章
+  - `getPostBlocks.js` - 获取文章内容块
+  - `CustomNotionApi.ts` - 自定义 Notion API 封装
+
+### 缓存系统
+- [lib/cache/cache_manager.js](mdc:lib/cache/cache_manager.js) - 统一缓存管理器
+- [lib/cache/local_file_cache.js](mdc:lib/cache/local_file_cache.js) - 本地文件缓存
+- [lib/cache/memory_cache.js](mdc:lib/cache/memory_cache.js) - 内存缓存
+
+### 路由与页面
+- [pages/[prefix]/[slug]/index.js](mdc:pages/[prefix]/[slug]/index.js) - 动态文章页面路由
+- [pages/_app.js](mdc:pages/_app.js) - Next.js 应用入口
+- [pages/api/](mdc:pages/api) - API 路由目录
+
+### 主题系统
+- [themes/theme.js](mdc:themes/theme.js) - 主题动态加载管理器
+- [themes/](mdc:themes) - 各种主题目录（simple、heo、hexo 等）
+
+## 🔄 数据流与渲染机制
+
+### 1. 构建时数据获取流程
+
+```
+Notion Database 
+    ↓ (API 调用)
+getSiteData.js (统一数据入口)
+    ↓ (缓存检查)
+Cache Manager (本地/内存缓存)
+    ↓ (数据处理)
+Next.js getStaticPaths/getStaticProps
+    ↓ (静态生成)
+HTML 页面输出
+```
+
+### 2. 运行时更新机制（ISR）
+
+- **重新验证间隔**: 通过 `NEXT_REVALIDATE_SECOND` 配置控制
+- **按需更新**: 当 Notion 内容更新时，ISR 机制自动重新生成页面
+- **缓存策略**: 多层缓存（内存→本地文件→Notion API）减少 API 调用
+
+### 3. 主题切换机制
+
+通过 [themes/theme.js](mdc:themes/theme.js) 实现：
+- **动态加载**: 使用 `dynamic()` 函数按需加载主题组件
+- **URL 参数**: 支持 `?theme=themeName` 切换主题
+- **配置优先级**: 
+  1. URL 查询参数
+  2. 用户配置
+  3. 默认主题配置
+
+## 🚀 Vercel 部署流程
+
+### 构建阶段
+1. **依赖安装**: yarn install 安装所有依赖
+2. **类型检查**: TypeScript 类型验证
+3. **数据预获取**: 
+   - 调用 Notion API 获取所有文章数据
+   - 生成静态路径 (`getStaticPaths`)
+   - 为每篇文章生成静态页面 (`getStaticProps`)
+4. **资源优化**: 图片、CSS、JS 压缩和优化
+5. **静态输出**: 生成可部署的静态文件
+
+### 运行时特性
+- **ISR 更新**: 根据配置的重新验证时间自动更新页面
+- **CDN 缓存**: Vercel 全球 CDN 加速内容分发
+- **API 路由**: 处理动态请求（如评论、订阅等）
+
+## 📊 配置系统优先级
+
+配置读取顺序（从高到低）：
+1. **Notion 表格配置** - 在 Notion 数据库中的配置表
+2. **环境变量** - Vercel 部署环境变量
+3. **主题配置** - 各主题的 config.js 文件
+4. **全局配置** - [blog.config.js](mdc:blog.config.js) 默认配置
+
+## 🎨 文章渲染流程
+
+1. **路由匹配**: `[prefix]/[slug]` 动态路由匹配文章
+2. **数据获取**: 从缓存或 Notion API 获取文章内容
+3. **块解析**: 使用 `react-notion-x` 解析 Notion 块内容
+4. **主题应用**: 根据当前主题渲染页面布局
+5. **SEO 优化**: 自动生成 meta 标签、结构化数据等
+
+## 💡 关键特性
+
+- **多主题支持**: 20+ 内置主题，支持动态切换
+- **SEO 优化**: 自动生成 sitemap、robots.txt、meta 标签
+- **缓存机制**: 多层缓存减少 API 调用，提升性能
+- **国际化**: 支持多语言配置
+- **插件系统**: 评论、统计、广告等插件化集成
+- **PWA 支持**: 渐进式 Web 应用特性
+
+## ⚡ 性能优化策略
+
+1. **静态生成**: 构建时预生成所有页面
+2. **增量更新**: ISR 机制按需更新内容
+3. **图片优化**: 自动压缩和 WebP 转换
+4. **代码分割**: 按主题和页面分割 JavaScript
+5. **CDN 加速**: Vercel 全球边缘网络分发
+
+## 🔧 开发与调试
+
+- **本地开发**: `yarn dev` 启动开发服务器
+- **构建测试**: `yarn build` 本地构建验证
+- **主题开发**: 在 `themes/` 目录创建新主题
+- **配置调试**: 通过 `DebugPanel` 组件查看实时配置
