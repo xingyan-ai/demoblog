@@ -1,4 +1,4 @@
-import { Home } from '@/components/HeroIcons'
+import IconFont from '@/components/IconFont'
 import LazyImage from '@/components/LazyImage'
 import { siteConfig } from '@/lib/config'
 import Link from 'next/link'
@@ -20,7 +20,12 @@ const Logo = props => {
             {siteConfig('TITLE')}
           </div>
           <div className='flex justify-center rounded-2xl group-hover:bg-indigo-600 w-full group-hover:opacity-100 opacity-0 invisible group-hover:visible absolute top-0 py-1 duration-200'>
-            <Home className={'w-6 h-6 stroke-white stroke-2 '} />
+            {/* 使用阿里图标库的博客图标 */}
+            <IconFont 
+              type="blog" 
+              className="w-6 h-6 text-white"
+              style={{ fontSize: '1.5rem' }}
+            />
           </div>
         </div>
       </div>
