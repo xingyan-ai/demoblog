@@ -34,8 +34,8 @@ const AboutPageWithIframe = (props) => {
         }
       `}</style>
 
-      {/* 使用专门的 LayoutAbout 布局 */}
-      <DynamicLayout theme={theme} layoutName='LayoutAbout' {...props}>
+      {/* 使用主题的默认布局，而不是指定的LayoutAbout */}
+      <DynamicLayout theme={theme} {...props}>
         <div className="w-full overflow-hidden" style={{ height: iframeHeight }}>
           <iframe
             src={aboutUrl}
