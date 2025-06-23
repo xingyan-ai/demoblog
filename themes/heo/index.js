@@ -73,11 +73,12 @@ const LayoutBase = props => {
     </header>
   )
 
-  // 右侧栏 用户信息+标签列表
+  // 右侧栏 用户信息+标签列表 - About页面隐藏右侧栏
   const slotRight =
-    router.route === '/404' || fullWidth ? null : <SideRight {...props} />
+    router.route === '/404' || router.route === '/about' || fullWidth ? null : <SideRight {...props} />
 
-  const maxWidth = fullWidth ? 'max-w-[96rem] mx-auto' : 'max-w-[86rem]' // 普通最大宽度是86rem和顶部菜单栏对齐，留空则与窗口对齐
+  // About页面使用全宽度
+  const maxWidth = fullWidth || router.route === '/about' ? 'max-w-full' : 'max-w-[86rem]' // 普通最大宽度是86rem和顶部菜单栏对齐，留空则与窗口对齐
 
   const HEO_HERO_BODY_REVERSE = siteConfig(
     'HEO_HERO_BODY_REVERSE',
@@ -122,8 +123,8 @@ const LayoutBase = props => {
         </div>
       </main>
 
-      {/* 页脚 */}
-      <Footer />
+      {/* 页脚 - About页面隐藏 */}
+      {router.route !== '/about' && <Footer />}
 
       {HEO_LOADING_COVER && <LoadingCover />}
     </div>
@@ -498,8 +499,22 @@ const LayoutTagIndex = props => {
   )
 }
 
+/**
+ * About页面布局 - 专门用于iframe嵌入的关于页面
+ */
+const LayoutAbout = props => {
+  const { children } = props
+
+  return (
+    <div className='w-full'>
+      {children}
+    </div>
+  )
+}
+
 export {
   Layout404,
+  LayoutAbout,
   LayoutArchive,
   LayoutBase,
   LayoutCategoryIndex,

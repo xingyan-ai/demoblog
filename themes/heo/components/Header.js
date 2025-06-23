@@ -10,6 +10,7 @@ import RandomPostButton from './RandomPostButton'
 import ReadingProgress from './ReadingProgress'
 import SearchButton from './SearchButton'
 import SlideOver from './SlideOver'
+import IconFont from '@/components/IconFont'
 
 /**
  * 页头：顶部导航
@@ -167,8 +168,9 @@ const Header = props => {
 
           {/* 右侧固定 */}
           <div className='flex flex-shrink-0 justify-end items-center w-48'>
-            <RandomPostButton {...props} />
-            <SearchButton {...props} />
+            {/* About页面隐藏随便逛逛和搜索按钮 */}
+            {!props.isAboutPage && router.pathname !== '/about' && <RandomPostButton {...props} />}
+            {!props.isAboutPage && router.pathname !== '/about' && <SearchButton {...props} />}
             {!JSON.parse(siteConfig('THEME_SWITCH')) && (
               <div className='hidden md:block'>
                 <DarkModeButton {...props} />
@@ -176,12 +178,14 @@ const Header = props => {
             )}
             <ReadingProgress />
 
-            {/* 移动端菜单按钮 */}
+            {/* 移动端菜单按钮 - About页面隐藏 */}
+            {!props.isAboutPage && router.pathname !== '/about' && (
             <div
               onClick={toggleMenuOpen}
               className='flex lg:hidden w-8 justify-center items-center h-8 cursor-pointer'>
-              <i className='fas fa-bars' />
+              <IconFont type="caidan" />
             </div>
+            )}
           </div>
 
           {/* 右边侧拉抽屉 */}

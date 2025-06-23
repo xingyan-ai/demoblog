@@ -61,6 +61,30 @@ class MyDocument extends Document {
             </>
           )}
 
+          {/* 阿里巴巴图标库 */}
+          {BLOG.ICONFONT_URL && (
+            <>
+              <link
+                rel='preload'
+                href={BLOG.ICONFONT_URL}
+                as='style'
+                crossOrigin='anonymous'
+              />
+              <link
+                rel='stylesheet'
+                href={BLOG.ICONFONT_URL}
+                crossOrigin='anonymous'
+                referrerPolicy='no-referrer'
+              />
+            </>
+          )}
+
+          {/* 本地图标库备份 */}
+          <link
+            rel='stylesheet'
+            href='/css/iconfont.css'
+          />
+
           {/* 预先设置深色模式，避免闪烁 */}
           <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
         </Head>
