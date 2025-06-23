@@ -43,6 +43,7 @@ import SideRight from './components/SideRight'
 import CONFIG from './config'
 import { Style } from './style'
 import AISummary from '@/components/AISummary'
+import LayoutAbout from './components/LayoutAbout'
 
 /**
  * 基础布局 采用上中下布局，移动端使用顶部侧边导航栏
@@ -291,68 +292,40 @@ const LayoutSlug = props => {
     }
   }, [post])
   return (
-    <>
-      <div
-        className={`article h-full w-full ${fullWidth ? '' : 'xl:max-w-5xl'} ${hasCode ? 'xl:w-[73.15vw]' : ''}  bg-white dark:bg-[#18171d] dark:border-gray-600 lg:hover:shadow lg:border rounded-2xl lg:px-2 lg:py-4 `}>
-        {/* 文章锁 */}
-        {lock && <PostLock validPassword={validPassword} />}
+    <div id='article-wrapper'>
+      {lock && <PostLock validPassword={validPassword} post={post} />}
 
-        {!lock && post && (
-          <div className='mx-auto md:w-full md:px-5'>
-            {/* 文章主体 */}
-            <article
-              id='article-wrapper'
-              itemScope
-              itemType='https://schema.org/Movie'>
-              {/* Notion文章主体 */}
-              <section
-                className='wow fadeInUp p-5 justify-center mx-auto'
-                data-wow-delay='.2s'>
-                <AISummary aiSummary={post.aiSummary}/>
-                <WWAds orientation='horizontal' className='w-full' />
-                {post && <NotionPage post={post} />}
-                <WWAds orientation='horizontal' className='w-full' />
-              </section>
-
-              {/* 上一篇\下一篇文章 */}
-              <PostAdjacent {...props} />
-
-              {/* 分享 */}
-              <ShareBar post={post} />
-              {post?.type === 'Post' && (
-                <div className='px-5'>
-                  {/* 版权 */}
-                  <PostCopyright {...props} />
-                  {/* 文章推荐 */}
-                  <PostRecommend {...props} />
-                </div>
-              )}
-            </article>
-
-            {/* 评论区 */}
-            {fullWidth ? null : (
-              <div className={`${commentEnable && post ? '' : 'hidden'}`}>
-                <hr className='my-4 border-dashed' />
-                {/* 评论区上方广告 */}
-                <div className='py-2'>
-                  <AdSlot />
-                </div>
-                {/* 评论互动 */}
-                <div className='duration-200 overflow-x-auto px-5'>
-                  <div className='text-2xl dark:text-white'>
-                    <i className='fas fa-comment mr-1' />
-                    {locale.COMMON.COMMENTS}
-                  </div>
-                  <Comment frontMatter={post} className='' />
-                </div>
-              </div>
-            )}
+      {!lock && (
+        <div
+          id='container'
+          className='w-full flex justify-center xl:max-w-6xl 2xl:max-w-6xl lg:px-10 mx-auto'>
+          {/* 左侧文章内容 */}
+          <div className='w-full lg:w-4/6 xl:w-8/12 bg-white dark:bg-hexo-black-gray dark:border-gray-600 rounded-xl lg:border lg:p-10'>
+            <PostHeader post={post} />
+            <div id='post-content' className='px-5 md:px-10'>
+              <NotionPage post={post} />
+              <AdSlot type='in-article' />
+              <AISummary {...props}/>
+            </div>
+            <PostCopyright {...props} />
           </div>
-        )}
+
+          {/* 右侧边栏 */}
+          <SideRight {...props} />
+        </div>
+      )}
+
+      {/* 底部文章推荐 */}
+      <div className='w-full max-w-6xl mx-auto'>
+        <PostRecommend {...props} />
+        <PostAdjacent {...props} />
       </div>
 
-      <FloatTocButton {...props} />
-    </>
+      {/* 评论区 */}
+      <div className='w-full max-w-6xl mx-auto'>
+        <Comment frontMatter={post} />
+      </div>
+    </div>
   )
 }
 
@@ -495,19 +468,6 @@ const LayoutTagIndex = props => {
           )
         })}
       </div>
-    </div>
-  )
-}
-
-/**
- * About页面布局 - 专门用于iframe嵌入的关于页面
- */
-const LayoutAbout = props => {
-  const { children } = props
-
-  return (
-    <div className='w-full'>
-      {children}
     </div>
   )
 }
